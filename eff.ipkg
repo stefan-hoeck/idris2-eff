@@ -10,4 +10,10 @@ depends    = base    >= 0.4.0
            , tailrec >= 0.1.0
            , freer   >= 0.1.0
 
-modules = Data.Union
+modules = Control.Eff
+        , Control.Eff.Internal
+        , Control.Eff.Reader
+        , Control.Eff.State
+        , Control.Eff.Writer
+
+        , Data.Union
