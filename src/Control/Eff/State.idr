@@ -16,7 +16,7 @@ State = StateL ()
 
 export
 getAt : (0 lbl : k) -> Has (StateL lbl s) fs => Eff fs s
-getAt lbl = tell $ Get {lbl}
+getAt lbl = send $ Get {lbl}
 
 export %inline
 get : Has (State s) fs => Eff fs s
@@ -24,7 +24,7 @@ get = getAt ()
 
 export
 putAt : (0 lbl : k) -> Has (StateL lbl s) fs => s -> Eff fs ()
-putAt lbl vs = tell $ Put {lbl} vs
+putAt lbl vs = send $ Put {lbl} vs
 
 export %inline
 put : Has (State s) fs => s -> Eff fs ()

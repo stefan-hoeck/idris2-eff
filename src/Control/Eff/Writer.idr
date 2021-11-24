@@ -15,7 +15,7 @@ Writer = WriterL ()
 
 export
 tellAt : (0 lbl : k) -> Has (WriterL lbl w) fs => w -> Eff fs ()
-tellAt lbl vw = tell $ Tell {lbl} vw
+tellAt lbl vw = send $ Tell {lbl} vw
 
 export %inline
 tell : Has (Writer w) fs => w -> Eff fs ()

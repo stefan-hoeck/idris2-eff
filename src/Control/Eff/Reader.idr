@@ -15,7 +15,7 @@ Reader = ReaderL ()
 
 export
 askAt : (0 lbl : k) -> Has (ReaderL lbl env) fs => Eff fs env
-askAt lbl = tell $ Ask {lbl}
+askAt lbl = send $ Ask {lbl}
 
 export %inline
 ask : Has (Reader env) fs => Eff fs env

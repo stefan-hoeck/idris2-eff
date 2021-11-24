@@ -11,11 +11,11 @@ data Choose : (a : Type) -> Type where
 
 export %inline
 empty : Has Choose fs => Eff fs a
-empty = tell Empty
+empty = send Empty
 
 export %inline
 alt : Has Choose fs => Eff fs a -> Eff fs a -> Eff fs a
-alt x y = join $ tell (Alt x y)
+alt x y = join $ send (Alt x y)
 
 --------------------------------------------------------------------------------
 --          Running Choose

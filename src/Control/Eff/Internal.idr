@@ -15,8 +15,8 @@ Eff fs t = Free (Union fs) t
 
 ||| Lift a an effectful comutation into the `Eff` monad.
 export
-tell : Has f fs => f t -> Eff fs t
-tell = lift . inj
+send : Has f fs => f t -> Eff fs t
+send = lift . inj
 
 ||| Handle all effectful computations in `m`,
 ||| returning the underlying free monad.

@@ -23,7 +23,7 @@ Fail = FailL ()
 
 export
 throwAt : (0 lbl : k) -> Has (ExceptL lbl err) fs => err -> Eff fs a
-throwAt lbl e = tell $ Err {lbl} e
+throwAt lbl e = send $ Err {lbl} e
 
 export %inline
 throw : Has (Except err) fs => err -> Eff fs a
@@ -118,16 +118,3 @@ runFailAt lbl = map (either (const Nothing) Just) . runExceptAt lbl
 export %inline
 runFail : (prf : Has Fail fs) => Eff fs a -> Eff (Without fs prf) (Maybe a)
 runFail = runFailAt ()
-
-
--- runExceptAt sym = loop
---   where
---   handle = Run.on sym Left Right
---   loop r = case Run.peel r of
---     Left a -> case handle a of
---       Left (Except e) ->
---         pure (Left e)
---       Right a' ->
---         Run.send a' >>= loop
---     Right a ->
---       pure (Right a)
