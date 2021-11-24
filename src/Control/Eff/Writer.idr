@@ -6,6 +6,7 @@ import Control.Eff.Internal
 
 public export
 data WriterL : (lbl : k) -> (w : Type) -> (a : Type) -> Type where
+  [search lbl]
   Tell : (vw : w) -> WriterL lbl w ()
 
 public export

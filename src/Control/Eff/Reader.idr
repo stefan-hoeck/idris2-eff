@@ -6,6 +6,7 @@ import Control.Eff.Internal
 
 public export
 data ReaderL : (lbl : k) -> (env : Type) -> (a : Type) -> Type where
+  [search lbl]
   Ask : ReaderL lbl env env
 
 public export

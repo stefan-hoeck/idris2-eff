@@ -6,6 +6,7 @@ import Control.Eff.Internal
 
 public export
 data StateL : (lbl : k) -> (s : Type) -> (a : Type) -> Type where
+  [search lbl]
   Get : StateL lbl s s
   Put : (vs : s) -> StateL lbl s ()
 
