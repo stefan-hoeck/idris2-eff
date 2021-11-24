@@ -17,6 +17,11 @@ export %inline
 alt : Has Choose fs => Eff fs a -> Eff fs a -> Eff fs a
 alt x y = join $ send (Alt x y)
 
+export %inline
+guard : Has Choose fs => Bool -> Eff fs ()
+guard False = empty
+guard True  = pure ()
+
 --------------------------------------------------------------------------------
 --          Running Choose
 --------------------------------------------------------------------------------
