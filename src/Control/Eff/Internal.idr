@@ -29,3 +29,9 @@ toFree eff h = mapK (handleAll h) eff
 export
 runEff : MonadRec m => Eff fs t -> Handler fs m -> m t
 runEff eff h = foldMap (handleAll h) eff
+
+export
+extract : Eff [] a -> a
+extract fr = case toView fr of
+  Pure val => val
+  Bind u _ => absurd u
