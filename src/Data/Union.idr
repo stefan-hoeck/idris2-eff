@@ -18,9 +18,9 @@ Uninhabited (Has v []) where
 ||| calculate the list of effects after a single effect
 ||| was properly handled.
 public export
-0 Without : (ts : List a) -> Has v ts -> List a
-Without (_ :: vs)      Z     = vs
-Without (v :: x :: xs) (S k) = v :: Without (x :: xs) k
+0 (-) : (ts : List a) -> (v : a) -> (prf : Has v ts) => List a
+(-) (_ :: vs)      _ {prf = Z}   = vs
+(-) (y :: x :: xs) v {prf = S k} = y :: (-) (x :: xs) v
 
 ||| A list of effect handlers handling effects of types `fs`
 ||| wrapping results in type `m`.
@@ -77,7 +77,7 @@ weaken (U ix val) = U (S ix) val
 public export
 decomp :  (prf : Has f fs)
        => Union fs a
-       -> Either (Union (Without fs prf) a) (f a)
+       -> Either (Union (fs - f) a) (f a)
 decomp {prf = Z}                      (U Z     val) = Right $ val
 decomp {prf = Z}                      (U (S x) val) = Left $ U x val
 decomp {prf = S y} {fs = f :: h :: t} (U Z val)     = Left $ U Z val
@@ -92,5 +92,5 @@ public export
 handle :  (prf : Has f fs)
        => (f a -> res)
        -> Union fs a
-       -> Either (Union (Without fs prf) a) res
+       -> Either (Union (fs - f) a) res
 handle g = map g . decomp

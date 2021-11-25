@@ -45,13 +45,12 @@ unReader ve Ask = ve
 
 export
 runReaderAt : (0 lbl : k)
-            -> (prf : Has (ReaderL lbl env) fs)
+            -> Has (ReaderL lbl env) fs
             => env
             -> Eff fs t
-            -> Eff (Without fs prf) t
+            -> Eff (fs - ReaderL lbl env) t
 runReaderAt _ ve = handleRelay pure $ \v,f => f (unReader ve v)
 
 export %inline
-runReader : (prf : Has (Reader env) fs)
-          => env -> Eff fs t -> Eff (Without fs prf) t
+runReader : Has (Reader env) fs => env -> Eff fs t -> Eff (fs - Reader env) t
 runReader = runReaderAt ()

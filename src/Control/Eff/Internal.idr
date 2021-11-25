@@ -40,10 +40,10 @@ extract fr = case toView fr of
 
 export
 handleRelay :  (prf : Has f fs)
-            => (a -> Eff (Without fs prf) b)
-            -> (forall v . f v -> (v -> Eff (Without fs prf) b) -> Eff (Without fs prf) b)
+            => (a -> Eff (fs - f) b)
+            -> (forall v . f v -> (v -> Eff (fs - f) b) -> Eff (fs - f) b)
             -> Eff fs a
-            -> Eff (Without fs prf) b
+            -> Eff (fs - f) b
 handleRelay fval fcont fr = case toView fr of
   Pure val => fval val
   Bind x g => case decomp {prf} x of
@@ -53,10 +53,10 @@ handleRelay fval fcont fr = case toView fr of
 export
 handleRelayS :  (prf : Has f fs)
              => s
-             -> (s -> a -> Eff (Without fs prf) b)
-             -> (forall v . s -> f v -> (s -> v -> Eff (Without fs prf) b) -> Eff (Without fs prf) b)
+             -> (s -> a -> Eff (fs - f) b)
+             -> (forall v . s -> f v -> (s -> v -> Eff (fs - f) b) -> Eff (fs - f) b)
              -> Eff fs a
-             -> Eff (Without fs prf) b
+             -> Eff (fs - f) b
 handleRelayS vs fval fcont fr = case toView fr of
   Pure val => fval vs val
   Bind x g => case decomp {prf} x of

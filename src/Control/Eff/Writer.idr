@@ -36,36 +36,34 @@ unWriter : u -> (u -> w -> u) -> WriterL lbl w a -> (a,u)
 unWriter vu f (Tell vw) = ((), f vu vw)
 
 export
-foldWriterAt : (0 lbl : k)
-             -> (prf : Has (WriterL lbl w) fs)
+foldWriterAt :  (0 lbl : k)
+             -> Has (WriterL lbl w) fs
              => u
              -> (u -> w -> u)
              -> Eff fs t
-             -> Eff (Without fs prf) (t,u)
+             -> Eff (fs - WriterL lbl w) (t,u)
 foldWriterAt _ vu acc =
   handleRelayS vu (\x,y => pure (y,x)) $ \vu2,w,f =>
-    let (vv,vu3) = unWriter vu acc w
+    let (vv,vu3) = unWriter vu2 acc w
      in f vu3 vv
 
 export %inline
-foldWriter : (prf : Has (Writer w) fs)
+foldWriter :  Has (Writer w) fs
            => u
            -> (u -> w -> u)
            -> Eff fs t
-           -> Eff (Without fs prf) (t,u)
+           -> Eff (fs - Writer w) (t,u)
 foldWriter = foldWriterAt ()
 
 export
-runWriterAt : (0 lbl : k)
-            -> (prf : Has (WriterL lbl w) fs)
+runWriterAt :  (0 lbl : k)
+            -> Has (WriterL lbl w) fs
             => Monoid w
             => Eff fs t
-            -> Eff (Without fs prf) (t,w)
+            -> Eff (fs - WriterL lbl w) (t,w)
 runWriterAt lbl = foldWriterAt lbl neutral (<+>)
 
 export %inline
-runWriter :  (prf : Has (Writer w) fs)
-          => Monoid w
-          => Eff fs t
-          -> Eff (Without fs prf) (t,w)
+runWriter : Has (Writer w) fs => Monoid w =>
+            Eff fs t -> Eff (fs - Writer w) (t,w)
 runWriter = runWriterAt ()

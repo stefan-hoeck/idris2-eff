@@ -56,19 +56,16 @@ unState vs Get     = (vs,vs)
 unState _ (Put s2) = ((),s2)
 
 export
-runStateAt : (0 lbl : k)
-           -> (prf : Has (StateL lbl s) fs)
+runStateAt :  (0 lbl : k)
+           -> Has (StateL lbl s) fs
            => s
            -> Eff fs t
-           -> Eff (Without fs prf) (t,s)
+           -> Eff (fs - StateL lbl s) (t,s)
 runStateAt _ vs =
   handleRelayS vs (\x,y => pure (y,x)) $ \vs2,st,f =>
     let (vv,vs3) = unState vs2 st
      in f vs3 vv
 
 export %inline
-runState : (prf : Has (State s) fs)
-         => s
-         -> Eff fs t
-         -> Eff (Without fs prf) (t,s)
+runState : Has (State s) fs => s -> Eff fs t -> Eff (fs - State s) (t,s)
 runState = runStateAt ()
