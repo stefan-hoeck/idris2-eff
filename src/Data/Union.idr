@@ -75,12 +75,22 @@ weaken (U ix val) = U (S ix) val
 ||| is the first in the list. To improve type inference,
 ||| the return type is calculated from the `prf` value.
 public export
+decomp :  (prf : Has f fs)
+       => Union fs a
+       -> Either (Union (Without fs prf) a) (f a)
+decomp {prf = Z}                      (U Z     val) = Right $ val
+decomp {prf = Z}                      (U (S x) val) = Left $ U x val
+decomp {prf = S y} {fs = f :: h :: t} (U Z val)     = Left $ U Z val
+decomp {prf = S y} {fs = f :: h :: t} (U (S x) val) =
+  mapFst weaken $ decomp (U x val)
+
+||| Handle one of the effects in a `Union`. Unlike in other
+||| effect libraries, it's not necessary that the effect
+||| is the first in the list. To improve type inference,
+||| the return type is calculated from the `prf` value.
+public export
 handle :  (prf : Has f fs)
        => (f a -> res)
        -> Union fs a
        -> Either (Union (Without fs prf) a) res
-handle {prf = Z}                      g (U Z     val) = Right $ g val
-handle {prf = Z}                      _ (U (S x) val) = Left $ U x val
-handle {prf = S y} {fs = f :: h :: t} g (U Z val)     = Left $ U Z val
-handle {prf = S y} {fs = f :: h :: t} g (U (S x) val) =
-  mapFst weaken $ handle g (U x val)
+handle g = map g . decomp

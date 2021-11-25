@@ -32,8 +32,8 @@ handleWriter :  {0 m : Type -> Type}
              -> m a
 handleWriter tell (Tell vw) = tell vw
 
-unWriter : (0 lbl : k) -> u -> (u -> w -> u) -> WriterL lbl w a -> (a,u)
-unWriter _ vu f (Tell vw) = ((), f vu vw)
+unWriter : u -> (u -> w -> u) -> WriterL lbl w a -> (a,u)
+unWriter vu f (Tell vw) = ((), f vu vw)
 
 export
 foldWriterAt : (0 lbl : k)
@@ -42,11 +42,10 @@ foldWriterAt : (0 lbl : k)
              -> (u -> w -> u)
              -> Eff fs t
              -> Eff (Without fs prf) (t,u)
-foldWriterAt lbl vu acc fr = case toView fr of
-  Pure val => pure (val,vu)
-  Bind x f => case handle (unWriter lbl vu acc) x of
-    Left y        => assert_total $ lift y >>= foldWriterAt lbl vu acc . f
-    Right (y,vu2) => assert_total $ foldWriterAt lbl vu2 acc (f y)
+foldWriterAt _ vu acc =
+  handleRelayS vu (\x,y => pure (y,x)) $ \vu2,w,f =>
+    let (vv,vu3) = unWriter vu acc w
+     in f vu3 vv
 
 export %inline
 foldWriter : (prf : Has (Writer w) fs)

@@ -40,8 +40,8 @@ handleReader :  {0 m : Type -> Type}
              -> m a
 handleReader x Ask = x
 
-unReader : (0 lbl : k) -> env -> ReaderL lbl env a -> a
-unReader _ ve Ask = ve
+unReader : env -> ReaderL lbl env a -> a
+unReader ve Ask = ve
 
 export
 runReaderAt : (0 lbl : k)
@@ -49,11 +49,7 @@ runReaderAt : (0 lbl : k)
             => env
             -> Eff fs t
             -> Eff (Without fs prf) t
-runReaderAt lbl ve fr = case toView fr of
-  Pure val => pure val
-  Bind x f => case handle (unReader lbl ve) x of
-    Left y  => assert_total $ lift y >>= runReaderAt lbl ve . f
-    Right y => assert_total $ runReaderAt lbl ve (f y)
+runReaderAt _ ve = handleRelay pure $ \v,f => f (unReader ve v)
 
 export %inline
 runReader : (prf : Has (Reader env) fs)

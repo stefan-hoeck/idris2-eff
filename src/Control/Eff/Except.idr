@@ -69,8 +69,8 @@ fromJust = fromJustAt ()
 --          Handling Exceptions
 --------------------------------------------------------------------------------
 
-unExcept : (0 lbl : k) -> ExceptL lbl err a -> err
-unExcept _ (Err e) = e
+unExcept : ExceptL lbl err a -> err
+unExcept (Err e) = e
 
 export
 catchAt :  (0 lbl : k)
@@ -78,11 +78,7 @@ catchAt :  (0 lbl : k)
         => (err -> Eff (Without fs prf) a)
         -> Eff fs a
         -> Eff (Without fs prf) a
-catchAt lbl f fr = case toView fr of
-  Pure val => pure val
-  Bind x g => case handle (unExcept lbl) x of
-    Left y  => assert_total $ lift y >>= catchAt lbl f . g
-    Right y => f y
+catchAt _ f = handleRelay pure $ \v,_ => f (unExcept v)
 
 export %inline
 catch : (prf : Has (Except err) fs)
@@ -96,11 +92,7 @@ runExceptAt :  (0 lbl : k)
             -> (prf : Has (ExceptL lbl err) fs)
             => Eff fs a
             -> Eff (Without fs prf) (Either err a)
-runExceptAt lbl fr = case toView fr of
-  Pure val => pure $ Right val
-  Bind x g => case handle (unExcept lbl) x of
-    Left y  => assert_total $ lift y >>= runExceptAt lbl . g
-    Right y => pure (Left y)
+runExceptAt _ = handleRelay (pure . Right) $ \v,_ => pure (Left $ unExcept v)
 
 export %inline
 runExcept :  (prf : Has (Except err) fs)
