@@ -51,9 +51,9 @@ handleState :  {0 m : Type -> Type}
 handleState get _   Get      = get
 handleState _   put (Put vs) = put vs
 
-unState : (0 lbl : k) -> s -> StateL lbl s a -> (a,s)
-unState _ vs Get     = (vs,vs)
-unState _ _ (Put s2) = ((),s2)
+unState : s -> StateL lbl s a -> (a,s)
+unState vs Get     = (vs,vs)
+unState _ (Put s2) = ((),s2)
 
 export
 runStateAt : (0 lbl : k)
@@ -61,11 +61,10 @@ runStateAt : (0 lbl : k)
            => s
            -> Eff fs t
            -> Eff (Without fs prf) (t,s)
-runStateAt lbl vs fr = case toView fr of
-  Pure val => pure (val,vs)
-  Bind x f => case handle (unState lbl vs) x of
-    Left y        => assert_total $ lift y >>= runStateAt lbl vs . f
-    Right (y,vs2) => assert_total $ runStateAt lbl vs2 (f y)
+runStateAt _ vs =
+  handleRelayS vs (\x,y => pure (y,x)) $ \vs2,st,f =>
+    let (vv,vs3) = unState vs2 st
+     in f vs3 vv
 
 export %inline
 runState : (prf : Has (State s) fs)

@@ -50,4 +50,15 @@ handleRelay fval fcont fr = case toView fr of
     Left y  => assert_total $ lift y >>= handleRelay fval fcont . g
     Right y => assert_total $ fcont y (handleRelay fval fcont . g)
 
-
+export
+handleRelayS :  (prf : Has f fs)
+             => s
+             -> (s -> a -> Eff (Without fs prf) b)
+             -> (forall v . s -> f v -> (s -> v -> Eff (Without fs prf) b) -> Eff (Without fs prf) b)
+             -> Eff fs a
+             -> Eff (Without fs prf) b
+handleRelayS vs fval fcont fr = case toView fr of
+  Pure val => fval vs val
+  Bind x g => case decomp {prf} x of
+    Left y  => assert_total $ lift y >>= handleRelayS vs fval fcont . g
+    Right y => assert_total $ fcont vs y (\vs2 => handleRelayS vs2 fval fcont . g)
