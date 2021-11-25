@@ -27,10 +27,7 @@ guard True  = pure ()
 --------------------------------------------------------------------------------
 
 export
-runChoose :  Alternative f
-          => (p : Has Choose fs)
-          => Eff fs a
-          -> Eff (Without fs p) (f a)
+runChoose : Alternative f => Has Choose fs => Eff fs a -> Eff (fs - Choose) (f a)
 runChoose fr = case toView fr of
   Pure val => pure (pure val)
   Bind x g => case handle (id {a = Choose _}) x of

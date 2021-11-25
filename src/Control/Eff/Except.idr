@@ -74,39 +74,39 @@ unExcept (Err e) = e
 
 export
 catchAt :  (0 lbl : k)
-        -> (prf : Has (ExceptL lbl err) fs)
-        => (err -> Eff (Without fs prf) a)
+        -> Has (ExceptL lbl err) fs
+        => (err -> Eff (fs - ExceptL lbl err) a)
         -> Eff fs a
-        -> Eff (Without fs prf) a
+        -> Eff (fs - ExceptL lbl err) a
 catchAt _ f = handleRelay pure $ \v,_ => f (unExcept v)
 
 export %inline
-catch : (prf : Has (Except err) fs)
-      => (err -> Eff (Without fs prf) a)
+catch :  Has (Except err) fs
+      => (err -> Eff (fs - Except err) a)
       -> Eff fs a
-      -> Eff (Without fs prf) a
+      -> Eff (fs - Except err) a
 catch = catchAt ()
 
 export
 runExceptAt :  (0 lbl : k)
-            -> (prf : Has (ExceptL lbl err) fs)
+            -> Has (ExceptL lbl err) fs
             => Eff fs a
-            -> Eff (Without fs prf) (Either err a)
+            -> Eff (fs - ExceptL lbl err) (Either err a)
 runExceptAt _ = handleRelay (pure . Right) $ \v,_ => pure (Left $ unExcept v)
 
 export %inline
-runExcept :  (prf : Has (Except err) fs)
+runExcept :  Has (Except err) fs
           => Eff fs a
-          -> Eff (Without fs prf) (Either err a)
+          -> Eff (fs - Except err) (Either err a)
 runExcept = runExceptAt ()
 
 export
 runFailAt :  (0 lbl : k)
-          -> (prf : Has (FailL lbl) fs)
+          -> Has (FailL lbl) fs
           => Eff fs a
-          -> Eff (Without fs prf) (Maybe a)
+          -> Eff (fs - FailL lbl) (Maybe a)
 runFailAt lbl = map (either (const Nothing) Just) . runExceptAt lbl
 
 export %inline
-runFail : (prf : Has Fail fs) => Eff fs a -> Eff (Without fs prf) (Maybe a)
+runFail : Has Fail fs => Eff fs a -> Eff (fs - Fail) (Maybe a)
 runFail = runFailAt ()
