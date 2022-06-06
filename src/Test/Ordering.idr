@@ -2,6 +2,7 @@ import Control.Eff
 
 data Alice a = MkAlice
 data Bob a = MkBob
+data Charles a = MkCharles
 
 f0 : Eff [Alice, Bob] ()
 f0 = do
@@ -10,4 +11,7 @@ f0 = do
 
 f1 : Eff [Bob, Alice] ()
 f1 = do
-   f0
+   lift f0 -- reorder
+
+f2 : Eff [Alice, Bob, Charles] ()
+f2 = lift f1

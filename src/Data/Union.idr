@@ -49,12 +49,13 @@ handleAll (h :: t) (U (S y) val) = handleAll t (U y val)
 
 ||| Prepend a new effect to an existing `Union` value.
 public export
-weaken : Union fs a -> Union (f :: fs) a
-weaken (U ix val) = U (S ix) val
+weaken1 : Union fs a -> Union (f :: fs) a
+weaken1 (U ix val) = U (S ix) val
 
--- public export
--- weakenN : Subset fs fs' => Union fs a -> Union fs' a
--- weakenN @{subset} (U ix val) = U (lemma_subset subset ix) val
+public export
+weaken : Subset fs fs' => Union fs a -> Union fs' a
+weaken @{subset} (U ix val) = U (lemma_subset subset ix) val
+
 
 ||| Handle on of the effects in a `Union`. Unlike in other
 ||| effect libraries, it's not necessary that the effect
@@ -68,7 +69,7 @@ decomp {prf = Z}                      (U Z     val) = Right $ val
 decomp {prf = Z}                      (U (S x) val) = Left $ U x val
 decomp {prf = S y} {fs = f :: h :: t} (U Z val)     = Left $ U Z val
 decomp {prf = S y} {fs = f :: h :: t} (U (S x) val) =
-  mapFst weaken $ decomp (U x val)
+  mapFst weaken1 $ decomp (U x val)
 
 ||| Handle one of the effects in a `Union`. Unlike in other
 ||| effect libraries, it's not necessary that the effect
