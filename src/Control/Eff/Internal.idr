@@ -71,7 +71,7 @@ handleRelayS vs fval fcont fr = case toView fr of
     Right y => assert_total $ fcont vs y (\vs2 => handleRelayS vs2 fval fcont . g)
 
 
-||| Lift effect monad into a more relaxed one. Can be used to reorder effects as well. See src/Test/Ordering.idr for usage.
+||| Turn effect monad into a more relaxed one. Can be used to reorder effects as well. See src/Test/Ordering.idr for usage.
 export
 lift : Subset fs fs' => Eff fs a -> Eff fs' a
 lift @{s} fr = case toView fr of
@@ -80,3 +80,11 @@ lift @{s} fr = case toView fr of
     let mx = weaken @{s} x
     freex <- lift mx
     lift (assert_smaller fr (g freex))
+
+public export
+Has f fs => Cast (f t) (Eff fs t) where
+  cast = send
+
+public export
+Subset fs fs' => Cast (Eff fs a) (Eff fs' a) where
+  cast = lift
