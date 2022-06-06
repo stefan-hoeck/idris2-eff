@@ -3,6 +3,7 @@ module Control.Eff.Internal
 import public Control.MonadRec
 import public Control.Monad.Free
 import public Data.Union
+import public Data.Subset
 
 %default total
 
@@ -11,7 +12,7 @@ import public Data.Union
 ||| in `fs`.
 public export
 Eff : (fs : List (Type -> Type)) -> (t : Type) -> Type
-Eff fs t = Free (Union fs) t
+Eff fs = Free (Union fs)
 
 ||| Lift a an effectful comutation into the `Eff` monad.
 export

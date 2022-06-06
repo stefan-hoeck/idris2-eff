@@ -1,26 +1,8 @@
 module Data.Union
 
+import Data.Subset
+
 %default total
-
-||| Proof that a value is present in a list. This is
-||| isomorphic to `Data.List.Elem` but with (in my opinion)
-||| more fitting names for our use case.
-public export
-data Has : (v : a) -> (ts : List a) -> Type where
-  Z : Has v (v :: vs)
-  S : Has v vs -> Has v (w :: vs)
-
-Uninhabited (Has v []) where
-  uninhabited Z impossible
-  uninhabited (S _) impossible
-
-||| Removes an element from a list. This is used to
-||| calculate the list of effects after a single effect
-||| was properly handled.
-public export
-0 (-) : (ts : List a) -> (v : a) -> (prf : Has v ts) => List a
-(-) (_ :: vs)      _ {prf = Z}   = vs
-(-) (y :: x :: xs) v {prf = S k} = y :: (-) (x :: xs) v
 
 ||| A list of effect handlers handling effects of types `fs`
 ||| wrapping results in type `m`.
@@ -66,9 +48,13 @@ handleAll (h :: t) (U Z val)     = h val
 handleAll (h :: t) (U (S y) val) = handleAll t (U y val)
 
 ||| Prepend a new effect to an existing `Union` value.
-export
+public export
 weaken : Union fs a -> Union (f :: fs) a
 weaken (U ix val) = U (S ix) val
+
+-- public export
+-- weakenN : Subset fs fs' => Union fs a -> Union fs' a
+-- weakenN @{subset} (U ix val) = U (lemma_subset subset ix) val
 
 ||| Handle on of the effects in a `Union`. Unlike in other
 ||| effect libraries, it's not necessary that the effect
