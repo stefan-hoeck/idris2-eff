@@ -81,10 +81,3 @@ lift @{s} fr = case toView fr of
     freex <- lift mx
     lift (assert_smaller fr (g freex))
 
-public export
-Has f fs => Cast (f t) (Eff fs t) where
-  cast = send
-
-public export
-Subset fs fs' => Cast (Eff fs a) (Eff fs' a) where
-  cast = lift
