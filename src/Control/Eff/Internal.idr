@@ -3,6 +3,7 @@ module Control.Eff.Internal
 import public Control.MonadRec
 import public Control.Monad.Free
 import public Data.Union
+import public Data.Subset
 
 %default total
 
@@ -11,7 +12,7 @@ import public Data.Union
 ||| in `fs`.
 public export
 Eff : (fs : List (Type -> Type)) -> (t : Type) -> Type
-Eff fs t = Free (Union fs) t
+Eff fs = Free (Union fs)
 
 ||| Lift a an effectful comutation into the `Eff` monad.
 export
@@ -68,3 +69,15 @@ handleRelayS vs fval fcont fr = case toView fr of
   Bind x g => case decomp {prf} x of
     Left y  => assert_total $ lift y >>= handleRelayS vs fval fcont . g
     Right y => assert_total $ fcont vs y (\vs2 => handleRelayS vs2 fval fcont . g)
+
+
+||| Turn effect monad into a more relaxed one. Can be used to reorder effects as well. See src/Test/Ordering.idr for usage.
+export
+lift : Subset fs fs' => Eff fs a -> Eff fs' a
+lift @{s} fr = case toView fr of
+  Pure val => pure val
+  Bind x g => do
+    let mx = weaken @{s} x
+    freex <- lift mx
+    lift (assert_smaller fr (g freex))
+
