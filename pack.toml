@@ -1,0 +1,4 @@
+[custom.all.eff]
+type   = "local"
+path   = "."
+ipkg   = "eff.ipkg"
