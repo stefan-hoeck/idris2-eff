@@ -34,21 +34,23 @@ asks f = f <$> ask
 --------------------------------------------------------------------------------
 
 export
-handleReader :  {0 m : Type -> Type}
-             -> m env
-             -> ReaderL lbl env a
-             -> m a
+handleReader :
+     {0 m : Type -> Type}
+  -> m env
+  -> ReaderL lbl env a
+  -> m a
 handleReader x Ask = x
 
 unReader : env -> ReaderL lbl env a -> a
 unReader ve Ask = ve
 
 export
-runReaderAt : (0 lbl : k)
-            -> Has (ReaderL lbl env) fs
-            => env
-            -> Eff fs t
-            -> Eff (fs - ReaderL lbl env) t
+runReaderAt :
+     (0 lbl : k)
+  -> {auto _ : Has (ReaderL lbl env) fs}
+  -> env
+  -> Eff fs t
+  -> Eff (fs - ReaderL lbl env) t
 runReaderAt _ ve = handleRelay pure $ \v,f => f (unReader ve v)
 
 export %inline

@@ -10,17 +10,14 @@ data Has : (v : a) -> (ts : List a) -> Type where
   Z : Has v (v :: vs)
   S : Has v vs -> Has v (w :: vs)
 
-
 export
 Uninhabited (Has v []) where
   uninhabited Z impossible
   uninhabited (S _) impossible
 
-
-public export
-lemma_has_single : Has f [x] -> x = f
+export
+0 lemma_has_single : Has f [x] -> x === f
 lemma_has_single Z = Refl
-
 
 public export
 drop : (ts : List a) -> Has v ts -> List a
@@ -42,7 +39,6 @@ public export
 data Subset : {0 a: Type} -> (xs, ys : List a) -> Type where
   Nil : Subset [] ys
   (::) : {0 x: a} -> (e : Has x ys) -> Subset xs ys -> Subset (x::xs) ys
-
 
 public export
 lemma_subset : Subset fs fs' -> Has f fs -> Has f fs'

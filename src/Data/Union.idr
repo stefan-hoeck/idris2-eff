@@ -62,9 +62,10 @@ weaken @{subset} (U ix val) = U (lemma_subset subset ix) val
 ||| is the first in the list. To improve type inference,
 ||| the return type is calculated from the `prf` value.
 public export
-decomp :  (prf : Has f fs)
-       => Union fs a
-       -> Either (Union (fs - f) a) (f a)
+decomp :
+     {auto prf : Has f fs}
+  -> Union fs a
+  -> Either (Union (fs - f) a) (f a)
 decomp {prf = Z}                      (U Z     val) = Right $ val
 decomp {prf = Z}                      (U (S x) val) = Left $ U x val
 decomp {prf = S y} {fs = f :: h :: t} (U Z val)     = Left $ U Z val
@@ -76,8 +77,9 @@ decomp {prf = S y} {fs = f :: h :: t} (U (S x) val) =
 ||| is the first in the list. To improve type inference,
 ||| the return type is calculated from the `prf` value.
 public export
-handle :  (prf : Has f fs)
-       => (f a -> res)
-       -> Union fs a
-       -> Either (Union (fs - f) a) res
+handle :
+     {auto prf : Has f fs}
+  -> (f a -> res)
+  -> Union fs a
+  -> Either (Union (fs - f) a) res
 handle g = map g . decomp
