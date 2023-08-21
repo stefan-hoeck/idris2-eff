@@ -43,11 +43,12 @@ modify = modifyAt ()
 --------------------------------------------------------------------------------
 
 export
-handleState :  {0 m : Type -> Type}
-            -> (get : m s)
-            -> (put : s -> m ())
-            -> StateL lbl s a
-            -> m a
+handleState :
+     {0 m : Type -> Type}
+  -> (get : m s)
+  -> (put : s -> m ())
+  -> StateL lbl s a
+  -> m a
 handleState get _   Get      = get
 handleState _   put (Put vs) = put vs
 
@@ -56,14 +57,15 @@ unState vs Get     = (vs,vs)
 unState _ (Put s2) = ((),s2)
 
 export
-runStateAt :  (0 lbl : k)
-           -> Has (StateL lbl s) fs
-           => s
-           -> Eff fs t
-           -> Eff (fs - StateL lbl s) (t,s)
+runStateAt :
+     (0 lbl : k)
+  -> {auto _ : Has (StateL lbl s) fs}
+  -> s
+  -> Eff fs t
+  -> Eff (fs - StateL lbl s) (t,s)
 runStateAt _ vs =
   handleRelayS vs (\x,y => pure (y,x)) $ \vs2,st,f =>
-    let (vv,vs3) = unState vs2 st
+    let (vv,vs3) := unState vs2 st
      in f vs3 vv
 
 export %inline

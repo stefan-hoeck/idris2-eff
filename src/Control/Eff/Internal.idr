@@ -40,30 +40,34 @@ extract fr = case toView fr of
   Bind u _ => absurd u
 
 export
-handleRelay :  (prf : Has f fs)
-            => (a -> Eff (fs - f) b)
-            -> (forall v . f v -> (v -> Eff (fs - f) b) -> Eff (fs - f) b)
-            -> Eff fs a
-            -> Eff (fs - f) b
+handleRelay :
+     {auto prf : Has f fs}
+  -> (a -> Eff (fs - f) b)
+  -> (forall v . f v -> (v -> Eff (fs - f) b) -> Eff (fs - f) b)
+  -> Eff fs a
+  -> Eff (fs - f) b
 handleRelay fval fcont fr = case toView fr of
   Pure val => fval val
   Bind x g => case decomp {prf} x of
     Left y  => assert_total $ lift y >>= handleRelay fval fcont . g
     Right y => assert_total $ fcont y (handleRelay fval fcont . g)
 
-export handle :  (prf : Has f fs)
-              => (forall v . f v -> (resume: v -> Eff (fs - f) b) -> Eff (fs - f) b)
-              -> Eff fs b
-              -> Eff (fs - f) b
+export
+handle :
+     {auto prf : Has f fs}
+  -> (forall v . f v -> (resume: v -> Eff (fs - f) b) -> Eff (fs - f) b)
+  -> Eff fs b
+  -> Eff (fs - f) b
 handle fcont fr = handleRelay pure fcont fr
 
 export
-handleRelayS :  (prf : Has f fs)
-             => s
-             -> (s -> a -> Eff (fs - f) b)
-             -> (forall v . s -> f v -> (s -> v -> Eff (fs - f) b) -> Eff (fs - f) b)
-             -> Eff fs a
-             -> Eff (fs - f) b
+handleRelayS :
+     {auto prf : Has f fs}
+  -> s
+  -> (s -> a -> Eff (fs - f) b)
+  -> (forall v . s -> f v -> (s -> v -> Eff (fs - f) b) -> Eff (fs - f) b)
+  -> Eff fs a
+  -> Eff (fs - f) b
 handleRelayS vs fval fcont fr = case toView fr of
   Pure val => fval vs val
   Bind x g => case decomp {prf} x of
@@ -77,7 +81,6 @@ lift : Subset fs fs' => Eff fs a -> Eff fs' a
 lift @{s} fr = case toView fr of
   Pure val => pure val
   Bind x g => do
-    let mx = weaken @{s} x
+    let mx := weaken @{s} x
     freex <- lift mx
     lift (assert_smaller fr (g freex))
-
